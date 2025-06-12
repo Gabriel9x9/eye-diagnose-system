@@ -25,7 +25,7 @@ def ai_chat(request):
             return JsonResponse({'error': '消息不能为空'}, status=400)
         
         # Get API key from environment variable or settings
-        api_key = "sk-83dfd6dc3e9f4ddaa71941fc76ff3941"
+        api_key = ""
         
         if not api_key:
             # For demo purposes, provide a placeholder response when no API key is available
