@@ -1,0 +1,587 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}单人诊断 - 眼科疾病智能诊断系统{% endblock %}
+
+{% block extra_css %}
+<style>
+    .diagnosis-container {
+        padding: 3rem 0;
+        position: relative;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+    
+    .page-title::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: var(--primary-color);
+        margin: 1rem auto 0;
+        border-radius: 2px;
+    }
+    
+    .upload-btn-container {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .upload-btn {
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        border-radius: var(--border-radius);
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 113, 227, 0.3);
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .upload-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 113, 227, 0.4);
+    }
+    
+    .upload-btn::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(transparent, rgba(255,255,255,0.2), transparent);
+        transform: rotate(45deg);
+        transition: all 0.8s ease;
+        opacity: 0;
+    }
+    
+    .upload-btn:hover::after {
+        transform: rotate(45deg) translate(0%, 50%);
+        opacity: 1;
+    }
+    
+    .result-container {
+        display: flex;
+        gap: 2.5rem;
+        margin-top: 2.5rem;
+    }
+    
+    .result-card {
+        flex: 1;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .result-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .result-card-header {
+        padding: 1.2rem 1.5rem;
+        background: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        font-size: 1.2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .result-card-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2));
+        transform: skewX(-15deg) translateX(100%);
+        transition: transform 0.5s ease;
+    }
+    
+    .result-card:hover .result-card-header::after {
+        transform: skewX(-15deg) translateX(60%);
+    }
+    
+    .result-card-body {
+        padding: 2rem;
+    }
+    
+    .result-card-body img {
+        max-width: 100%;
+        height: auto;
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .result-card:hover .result-card-body img {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .result-info {
+        margin-top: 1.5rem;
+    }
+    
+    .result-info p {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .result-info p:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .result-info strong {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .modal-content {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: none;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 1.2rem 1.5rem;
+        border-bottom: none;
+        display: flex;
+        align-items: center;
+    }
+    
+    .modal-title {
+        font-weight: 600;
+        font-size: 1.3rem;
+        margin-right: auto;
+    }
+    
+    .patient-count {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-right: 1rem;
+    }
+    
+    .patient-count i {
+        margin-right: 0.4rem;
+    }
+    
+    .btn-close {
+        color: white;
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+        transition: opacity 0.2s;
+        background: none;
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .btn-close:hover {
+        opacity: 1;
+        background: none;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem 1.5rem;
+    }
+    
+    .patient-stats {
+        display: flex;
+        justify-content: flex-start;
+        background-color: rgba(248, 249, 250, 0.8);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .modal-body {
+        padding: 2rem;
+    }
+    
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 0;
+        color: var(--secondary-color);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        color: rgba(0, 113, 227, 0.2);
+    }
+    
+    .empty-state p {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state small {
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+    
+    /* 动画曲线 */
+    .curve-path {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+    @media (max-width: 768px) {
+        .result-container {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container diagnosis-container">
+    <h1 class="page-title" data-scroll>单人诊断</h1>
+    
+    <div class="upload-btn-container" data-scroll>
+        <button type="button" class="btn upload-btn" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            <i class="fas fa-upload me-2"></i>上传诊断信息
+        </button>
+    </div>
+
+    <div class="result-container">
+        <!-- 左侧：处理后影像 -->
+        <div class="result-card" data-scroll>
+            <div class="result-card-header">
+                <i class="fas fa-image me-2"></i>处理后影像
+            </div>
+            <div class="result-card-body">
+                {% if record and record.processed_image %}
+                    <img src="{{ MEDIA_URL }}{{ record.processed_image }}" alt="处理后影像" class="img-fluid">
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-image"></i>
+                        <p>暂无处理后影像</p>
+                        <small>点击上方按钮上传诊断信息</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 右侧：诊断报告 -->
+        <div class="result-card" data-scroll>
+            <div class="result-card-header">
+                <i class="fas fa-file-medical-alt me-2"></i>诊断报告
+            </div>
+            <div class="result-card-body">
+                {% if record %}
+                    <div class="result-info">
+                        <p><strong>患者姓名：</strong> <span>{{ record.patient.name|default:"未知" }}</span></p>
+                        <p><strong>患者年龄：</strong> <span>{{ record.patient.age }}</span></p>
+                        <p><strong>患者性别：</strong> <span>{{ record.patient.get_gender_display|default:record.patient.gender }}</span></p>
+                        <p><strong>诊断结果：</strong> <span class="diagnosis-result">{{ record.result }}</span></p>
+                        <p><strong>诊断建议：</strong> <span>{{ record.advice|linebreaks }}</span></p>
+                        <p><strong>诊断时间：</strong> <span>{{ record.diagnosis_time|date:"Y-m-d H:i" }}</span></p>
+                        <p><strong>诊断医生：</strong> <span>{% if record.doctor %}{{ record.doctor.name }}{% else %}未分配{% endif %}</span></p>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-file-medical-alt"></i>
+                        <p>暂无诊断报告</p>
+                        <small>点击上方按钮上传诊断信息</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 动画曲线 -->
+    <svg class="curve-path" viewBox="0 0 1440 800" preserveAspectRatio="none">
+        <path id="curve" d="M 0,800 C 0,800 0,400 0,400 C 114.35714285714289,388.53571428571433 228.71428571428578,377.0714285714286 351,387 C 473.2857142857142,396.9285714285714 603.4999999999999,428.25 713,425 C 822.5000000000001,421.75 911.2857142857142,383.92857142857144 1029,378 C 1146.7142857142858,372.07142857142856 1293.3571428571427,398.0357142857143 1440,424 C 1440,424 1440,800 1440,800 Z" fill="rgba(92, 219, 149, 0.05)" transform="rotate(-180 720 400)"></path>
+        <path id="curve2" d="M 0,800 C 0,800 0,400 0,400 C 151.53571428571428,421.6071428571429 303.07142857142856,443.2142857142857 413,434 C 522.9285714285714,424.7857142857143 591.2499999999999,384.75 702,373 C 812.7500000000001,361.25 965.9285714285713,377.7857142857143 1093,386 C 1220.0714285714287,394.2142857142857 1330.0357142857142,394.10714285714283 1440,394 C 1440,394 1440,800 1440,800 Z" fill="rgba(0, 113, 227, 0.05)" transform="rotate(-180 720 400)"></path>
+    </svg>
+</div>
+
+<!-- 上传信息的 Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">
+                    <i class="fas fa-file-upload me-2"></i>上传诊断信息
+                </h5>
+                <div class="patient-count">
+                    <i class="fas fa-users me-1"></i>当前诊断数：<span id="patientCount" class="fw-bold">{{ last_patient.id }}</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="uploadFormContainer">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <p class="mt-2">正在加载表单...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>关闭
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 检查是否支持DrawSVG插件
+        if (typeof gsap.registerPlugin !== 'function' || typeof DrawSVGPlugin === 'undefined') {
+            console.warn('DrawSVG plugin not loaded properly. Skipping related animations.');
+        } else {
+            gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin);
+            
+            // 简化的页面动画，减少导致页面跳转的可能性
+            gsap.from('.page-title', {
+                opacity: 0,
+                y: 20,
+                duration: 0.7,
+                ease: 'power2.out'
+            });
+            
+            gsap.from('.upload-btn-container', {
+                opacity: 0,
+                y: 20,
+                duration: 0.7,
+                delay: 0.1,
+                ease: 'power2.out'
+            });
+            
+            // 禁用结果卡片的自动动画，减少页面跳动
+            gsap.utils.toArray('.result-card').forEach((card, index) => {
+                gsap.set(card, { opacity: 1, y: 0 });
+            });
+            
+            try {
+                // 尝试添加路径动画，如果失败则跳过
+                if (document.getElementById('curve') && document.getElementById('curve2')) {
+                    gsap.from('#curve', {
+                        drawSVG: "0%",
+                        duration: 1.5,
+                        ease: "power2.inOut"
+                    });
+                    
+                    gsap.from('#curve2', {
+                        drawSVG: "0%",
+                        duration: 2,
+                        delay: 0.3,
+                        ease: "power2.inOut"
+                    });
+                }
+            } catch (e) {
+                console.warn('Error in SVG animation:', e);
+            }
+        }
+        
+        // Modal打开动画
+        const uploadModal = document.getElementById('uploadModal');
+        if (uploadModal) {
+            uploadModal.addEventListener('show.bs.modal', function() {
+                console.log('Modal is showing');
+                
+                // 加载状态显示
+                document.getElementById('uploadFormContainer').innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">加载中...</span>
+                        </div>
+                        <p class="mt-2">正在加载表单...</p>
+                    </div>
+                `;
+                
+                // 加载表单
+                fetch("{% url 'personal_info' %}")
+                    .then(response => {
+                        console.log('Received response', response);
+                        if (!response.ok) {
+                            throw new Error('网络响应错误: ' + response.status);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        console.log('Received HTML, updating container');
+                        document.getElementById('uploadFormContainer').innerHTML = html;
+                        
+                        // 确保表单提交按钮正确显示
+                        const submitBtn = document.querySelector('#uploadFormContainer .submit-btn');
+                        if (submitBtn) {
+                            console.log('提交按钮已加载');
+                            submitBtn.style.display = 'inline-block';
+                            submitBtn.style.visibility = 'visible';
+                            submitBtn.style.opacity = '1';
+                        } else {
+                            console.error('提交按钮未找到');
+                        }
+                        
+                        // Form元素出现动画
+                        const formElements = document.querySelectorAll('#uploadFormContainer .form-group, #uploadFormContainer .form-actions button');
+                        gsap.from(formElements, {
+                            opacity: 0,
+                            y: 20,
+                            duration: 0.5,
+                            stagger: 0.1,
+                            ease: 'power2.out'
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading form:', error);
+                        document.getElementById('uploadFormContainer').innerHTML = `
+                            <div class="alert alert-danger m-4">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                加载表单失败，请刷新页面重试
+                                <p class="mt-2">${error.message}</p>
+                            </div>
+                            <div class="text-center">
+                                <button type="button" class="btn btn-outline-primary" id="retryBtn">
+                                    <i class="fas fa-sync-alt me-1"></i>重试加载
+                                </button>
+                            </div>
+                        `;
+                        
+                        // 添加重试按钮事件
+                        document.getElementById('retryBtn').addEventListener('click', function() {
+                            uploadModal.dispatchEvent(new Event('show.bs.modal'));
+                        });
+                    });
+            });
+            
+            // 添加模态窗口关闭事件，确保下次打开时重新加载
+            uploadModal.addEventListener('hidden.bs.modal', function() {
+                console.log('Modal is hidden, reset content');
+                document.getElementById('uploadFormContainer').innerHTML = '';
+            });
+        }
+        
+        // 获取CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        const csrftoken = getCookie('csrftoken');
+        
+        // 处理表单提交
+        document.addEventListener('submit', function(e) {
+            if (e.target && e.target.id === 'uploadForm') {
+                e.preventDefault();
+                console.log('Form submitted');
+                
+                // 添加加载动画
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 提交中...';
+                submitBtn.disabled = true;
+                
+                const formData = new FormData(e.target);
+                
+                // 打印表单数据
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+                
+                fetch("{% url 'personal_info' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Form submission response', response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Form submission success', data);
+                    // 使用美观的提示框而不是alert
+                    const alertHTML = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+                    
+                    document.getElementById('uploadFormContainer').insertAdjacentHTML('afterbegin', alertHTML);
+                    
+                    // 恢复按钮
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    
+                    // 延迟关闭和刷新
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+                        modal.hide();
+                        location.reload();
+                    }, 1500);
+                })
+                .catch(error => {
+                    console.error('Error submitting form:', error);
+                    // 使用美观的提示框而不是alert
+                    const alertHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>提交失败，请重试
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+                    
+                    document.getElementById('uploadFormContainer').insertAdjacentHTML('afterbegin', alertHTML);
+                    
+                    // 恢复按钮
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

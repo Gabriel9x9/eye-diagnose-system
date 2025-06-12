@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Diagnose</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1/css/bootstrap.min.css' %}">
+    <style>
+        .sidebar {
+            font-size: xx-large;
+        }
+        .sidebar ul.nav.nav-pills.nav-stacked > li {
+            margin-bottom: 15px; /* 根据需要调整数值 */
+            border: 0;
+        }
+        .sidebar ul.nav.nav-pills.nav-stacked ul.nav > li {
+            margin-bottom: 10px;
+        }
+    </style>
+    {% block style %}
+    {% endblock %}
+</head>
+<body>
+
+<!-- 顶部导航栏 -->
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- 系统标题 -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{% url 'home' %}">眼科疾病诊断系统</a>
+        </div>
+        <!-- 右侧"你好，xxx医生"和退出登录 -->
+        <ul class="nav navbar-nav navbar-right">
+            {% if user.is_authenticated %}
+                <li><a href="#">你好，{{ user.name }}医生</a></li>
+                <li>
+                    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link" style="padding: 15px; color: #777;">退出登录</button>
+                    </form>
+                </li>
+            {% else %}
+                <li><a href="{% url 'login' %}">登录</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+<!-- 左侧导航栏 -->
+<div class="col-sm-2 sidebar">
+    <ul class="nav nav-pills nav-stacked">
+        <li class="index {% if request.path == '/index/' %}active{% endif %}">
+            <a href="{% url 'home' %}">
+                <span class="glyphicon glyphicon-home" aria-hidden="true"></span> 首页
+            </a>
+        </li>
+
+        <!-- 眼科诊断：点击展开/收起子菜单 -->
+        <li class="diagnose {% if '/person-diagnose/' in request.path or '/batch-diagnose/' in request.path %}active{% endif %}">
+            <a href="#collapseDiagnosis" data-toggle="collapse"
+               aria-expanded="{% if '/person-diagnose/' in request.path or '/batch-diagnose/' in request.path %}true{% else %}false{% endif %}"
+               aria-controls="collapseDiagnosis">
+                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> 眼科诊断 <span class="caret"></span>
+            </a>
+            <!-- 子菜单：单人诊断、批量诊断 -->
+            <ul class="nav collapse {% if '/person-diagnose/' in request.path or '/batch-diagnose/' in request.path %}in{% endif %}"
+                id="collapseDiagnosis" style="margin-left: 20px;">
+                <li class="person {% if request.path == '/person-diagnose/' %}active{% endif %}">
+                    <a href="/person-diagnose/">单人诊断</a>
+                </li>
+                <li class="batch {% if request.path == '/batch-diagnose/' %}active{% endif %}">
+                    <a href="/batch-diagnose/">批量诊断</a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="parameters {% if request.path == '/parameters/' %}active{% endif %}">
+            <a href="/parameters/">
+                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> 分析设置
+            </a>
+        </li>
+        <li class="records {% if request.path == '/records/' %}active{% endif %}">
+            <a href="/records/">
+                <span class="glyphicon glyphicon-record" aria-hidden="true"></span> 诊断记录
+            </a>
+        </li>
+        <li class="accounts {% if request.path == '/accounts/' %}active{% endif %}">
+            <a href="/accounts/">
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span> 医生账户
+            </a>
+        </li>
+    </ul>
+</div>
+
+{% block content %}
+{% endblock %}
+
+{% block script %}
+{% endblock %}
+
+<script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-3.4.1/js/bootstrap.min.js' %}"></script>
+
+</body>
+</html>

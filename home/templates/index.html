@@ -1,0 +1,528 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}首页 - 眼科疾病智能诊断系统{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-color), #2c3e50);
+        color: white;
+        padding: 6rem 0;
+        margin-bottom: 4rem;
+        border-radius: 0 0 30px 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+
+    .hero-text {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        max-width: 80%;
+        margin-bottom: 2rem;
+    }
+
+    .hero-image {
+        position: relative;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+    
+    .hero-image img {
+        border-radius: 18px;
+        transform: rotateY(-15deg) rotateX(5deg);
+        box-shadow: 25px 25px 50px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero-pattern {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzRjMCAxIDEgMiAyIDJzMi0xIDItMi0xLTItMi0yLTIgMS0yIDJ6bTAtMTFjMCAxIDEgMiAyIDJzMi0xIDItMi0xLTItMi0yLTIgMS0yIDJ6bTExIDVjMCAxIDEgMiAyIDJzMi0xIDItMi0xLTItMi0yLTIgMS0yIDJ6bS0xMSAyM2MwIDEgMSAyIDIgMnMyLTEgMi0yLTEtMi0yLTItMiAxLTIgMnptLTExLTVjMCAxIDEgMiAyIDJzMi0xIDItMi0xLTItMi0yLTIgMS0yIDJ6bTExLTI0YzAgMS43IDEuMyAzIDMgM3MzLTEuMyAzLTMtMS4zLTMtMy0zLTMgMS4zLTMgM3ptLTExIDljMC0xLTEtMi0yLTJzLTIgMS0yIDIgMSAyIDIgMiAyLTEgMi0yem0wIDEwYzAtMS0xLTItMi0ycy0yIDEtMiAyIDEgMiAyIDIgMi0xIDItMnptMC0xNGMwLS42LS40LTEtMS0xcy0xIC40LTEgMS40IDEgMS0xIC42eiIvPjwvZz48L2c+PC9zdmc+');
+        opacity: 0.2;
+    }
+
+    .feature-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 2.5rem;
+        height: 100%;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: var(--card-shadow);
+        text-align: center;
+        z-index: 1;
+        position: relative;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 100px;
+        width: 100px;
+        border-radius: 50%;
+        background: rgba(0, 113, 227, 0.1);
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: rotate(10deg) scale(1.1);
+        background: rgba(0, 113, 227, 0.15);
+    }
+
+    .feature-card h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-card p {
+        color: var(--secondary-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: var(--card-shadow);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+        transform: rotate(45deg);
+        transition: all 0.8s ease;
+        opacity: 0;
+    }
+    
+    .stat-card:hover::after {
+        transform: rotate(45deg) translate(0%, 50%);
+        opacity: 1;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+
+    .stat-label {
+        color: var(--secondary-color);
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    .chart-container {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 3rem;
+        box-shadow: var(--card-shadow);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .chart-row {
+        display: flex;
+        gap: 2rem;
+    }
+    
+    .chart-col {
+        flex: 1;
+    }
+    
+    .chart-col h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .section-title {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+        font-weight: 700;
+    }
+    
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: var(--primary-color);
+        margin: 1rem auto 0;
+        border-radius: 2px;
+    }
+    
+    .cta-section {
+        padding: 5rem 0;
+        background: linear-gradient(to right, rgba(0, 113, 227, 0.1), rgba(92, 219, 149, 0.1));
+        border-radius: var(--border-radius);
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+    
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    
+    .cta-text {
+        font-size: 1.2rem;
+        max-width: 700px;
+        margin: 0 auto 2rem;
+        color: var(--secondary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-pattern"></div>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="hero-title" id="heroTitle">
+                    智能诊断，精准医疗
+                </h1>
+                <p class="hero-text" id="heroText">
+                    基于深度学习的眼科疾病智能诊断系统，为您提供快速、准确的诊断服务。
+                </p>
+                <div class="mt-4" id="heroButtons">
+                    <a href="{% url 'personal_diagnose' %}" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-user-md me-2"></i>开始诊断
+                    </a>
+                    <a href="{% url 'batch_diagnose' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-users me-2"></i>批量诊断
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="hero-image" id="heroImage">
+                    <img src="{% static 'img/logo.png' %}" alt="眼科诊断" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container mb-5">
+    <h2 class="section-title" data-scroll>诊断服务</h2>
+    <div class="row g-4">
+        <div class="col-md-6" data-scroll>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3>单人诊断</h3>
+                <p>上传单张眼底图像进行疾病诊断分析，获取详细的诊断报告和治疗建议。</p>
+                <a href="{% url 'personal_diagnose' %}" class="btn btn-primary mt-3">
+                    开始诊断 <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-md-6" data-scroll>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>批量诊断</h3>
+                <p>批量上传多张眼底图像进行疾病筛查和分析，适用于医院、社区筛查等场景。</p>
+                <a href="{% url 'batch_diagnose' %}" class="btn btn-primary mt-3">
+                    开始诊断 <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section" data-scroll>
+    <div class="container">
+        <h2 class="cta-title">提升您的诊断效率</h2>
+        <p class="cta-text">我们的系统结合了先进的深度学习技术和医学专家的临床经验，为您提供高效、精准的眼科疾病诊断服务。</p>
+        <a href="{% url 'personal_diagnose' %}" class="btn btn-primary btn-lg">
+            立即体验 <i class="fas fa-external-link-alt ms-2"></i>
+        </a>
+    </div>
+</section>
+
+<section class="container mb-5">
+    <h2 class="section-title" data-scroll>系统数据统计</h2>
+    <div class="row g-4">
+        <div class="col-md-6" data-scroll>
+            <div class="stat-card">
+                <div class="stat-number counter">{{ total_diagnoses }}</div>
+                <div class="stat-label">总诊断数</div>
+            </div>
+        </div>
+        <div class="col-md-6" data-scroll>
+            <div class="stat-card">
+                <div class="stat-number counter">{{ doctor_diagnoses }}</div>
+                <div class="stat-label">我的诊断数</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container mb-5" data-scroll>
+    <h2 class="section-title">疾病分析</h2>
+    <div class="row">
+        <div class="col-12">
+            <div class="chart-container">
+                <div class="chart-row">
+                    <div class="chart-col">
+                        <h3>年龄性别分布</h3>
+                        <canvas id="ageGenderChart"></canvas>
+                    </div>
+                    <div class="chart-col">
+                        <h3>疾病分布</h3>
+                        <canvas id="diseaseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // GSAP动画
+    gsap.registerPlugin(ScrollTrigger);
+    
+    // 英雄区动画
+    gsap.from('#heroTitle', {
+        opacity: 0,
+        y: 50,
+        duration: 1,
+        ease: 'power3.out'
+    });
+    
+    gsap.from('#heroText', {
+        opacity: 0,
+        y: 30,
+        duration: 1,
+        delay: 0.3,
+        ease: 'power3.out'
+    });
+    
+    gsap.from('#heroButtons', {
+        opacity: 0,
+        y: 30,
+        duration: 1,
+        delay: 0.6,
+        ease: 'power3.out'
+    });
+    
+    gsap.from('#heroImage', {
+        opacity: 0,
+        x: 50,
+        duration: 1.2,
+        delay: 0.3,
+        ease: 'power3.out'
+    });
+    
+    // 3D hover效果
+    const heroImage = document.querySelector('#heroImage');
+    if(heroImage) {
+        heroImage.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            heroImage.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+        
+        heroImage.addEventListener('mouseleave', () => {
+            heroImage.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        });
+    }
+    
+    // 数字计数器动画
+    const counters = document.querySelectorAll('.counter');
+    counters.forEach(counter => {
+        const target = parseInt(counter.innerText);
+        
+        ScrollTrigger.create({
+            trigger: counter,
+            start: 'top 80%',
+            onEnter: () => {
+                let start = 0;
+                const duration = 1500; // 1.5秒
+                const interval = 10;
+                const increment = target / (duration / interval);
+                
+                const timer = setInterval(() => {
+                    start += increment;
+                    if (start >= target) {
+                        counter.innerText = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.innerText = Math.floor(start);
+                    }
+                }, interval);
+            },
+            once: true
+        });
+    });
+    
+    // 滚动触发动画
+    gsap.utils.toArray('[data-scroll]').forEach(elem => {
+        gsap.from(elem, {
+            scrollTrigger: {
+                trigger: elem,
+                start: 'top 80%',
+                end: 'bottom 20%',
+                toggleActions: 'play none none none'
+            },
+            y: 50,
+            opacity: 0,
+            duration: 1,
+            ease: 'power3.out'
+        });
+    });
+    
+    // 年龄性别分布图表
+    const ageGenderCtx = document.getElementById('ageGenderChart').getContext('2d');
+    new Chart(ageGenderCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ age_ranges|safe }},
+            datasets: [
+                {
+                    label: '男性',
+                    data: {{ male_data|safe }},
+                    backgroundColor: '#0071e3',
+                    stack: 'Stack 0',
+                },
+                {
+                    label: '女性',
+                    data: {{ female_data|safe }},
+                    backgroundColor: '#FF6B8B',
+                    stack: 'Stack 0',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+    
+    // 疾病分布图表
+    const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
+    new Chart(diseaseCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ disease_labels|safe }},
+            datasets: [{
+                data: {{ disease_data|safe }},
+                backgroundColor: [
+                    '#34C759', // 正常 - 绿色
+                    '#FF3B30', // 糖尿病视网膜病变 - 红色
+                    '#0071E3', // 青光眼 - 蓝色
+                    '#FF9500', // 白内障 - 黄色
+                    '#BF5AF2', // 年龄相关性黄斑变性 - 紫色
+                    '#FF6B8B', // 高血压视网膜病变 - 粉色
+                    '#5AC8FA', // 近视 - 蓝灰色
+                    '#AEAEB2'  // 其他 - 灰色
+                ],
+                borderWidth: 0,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 15,
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                title: {
+                    display: false
+                }
+            },
+            cutout: '65%',
+            animation: {
+                animateScale: true,
+                animateRotate: true,
+                duration: 2000,
+                easing: 'easeOutCirc'
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

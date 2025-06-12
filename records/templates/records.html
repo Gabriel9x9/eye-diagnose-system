@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <h2 class="page-header mb-4">诊断记录查询</h2>
+        <!-- 查询表单 -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <!-- 姓名输入 -->
+                    <div class="col-md-3">
+                        <label for="name" class="form-label">姓名</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="请输入姓名" value="{{ request.GET.name }}">
+                    </div>
+                    <!-- 年龄输入 -->
+                    <div class="col-md-3">
+                        <label for="age" class="form-label">年龄</label>
+                        <input type="number" class="form-control" id="age" name="age" placeholder="请输入年龄" value="{{ request.GET.age }}">
+                    </div>
+                    <!-- 性别单选 -->
+                    <div class="col-md-3">
+                        <label class="form-label">性别</label>
+                        <div class="d-flex">
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="radio" name="gender" id="gender-male" value="男" {% if request.GET.gender == "男" %}checked{% endif %}>
+                                <label class="form-check-label" for="gender-male">男</label>
+                            </div>
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="radio" name="gender" id="gender-female" value="女" {% if request.GET.gender == "女" %}checked{% endif %}>
+                                <label class="form-check-label" for="gender-female">女</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gender" id="gender-all" value="" {% if not request.GET.gender %}checked{% endif %}>
+                                <label class="form-check-label" for="gender-all">全部</label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 病种多选 -->
+                    <div class="col-md-3">
+                        <label for="disease" class="form-label">病种</label>
+                        <select name="disease" id="disease" class="form-select" multiple style="height: 120px;">
+                            <option value="1" {% if request.GET.disease and "1" in request.GET.disease %}selected{% endif %}>正常</option>
+                            <option value="2" {% if request.GET.disease and "2" in request.GET.disease %}selected{% endif %}>糖尿病</option>
+                            <option value="3" {% if request.GET.disease and "3" in request.GET.disease %}selected{% endif %}>青光眼</option>
+                            <option value="4" {% if request.GET.disease and "4" in request.GET.disease %}selected{% endif %}>白内障</option>
+                            <option value="5" {% if request.GET.disease and "5" in request.GET.disease %}selected{% endif %}>AMD</option>
+                            <option value="6" {% if request.GET.disease and "6" in request.GET.disease %}selected{% endif %}>高血压</option>
+                            <option value="7" {% if request.GET.disease and "7" in request.GET.disease %}selected{% endif %}>近视</option>
+                            <option value="8" {% if request.GET.disease and "8" in request.GET.disease %}selected{% endif %}>其他疾病/异常</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>查询
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 查询结果表格 -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                        <tr>
+                            <th>患者姓名</th>
+                            <th>年龄</th>
+                            <th>性别</th>
+                            <th>医疗影像</th>
+                            <th>诊断医生</th>
+                            <th>诊断结果</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for record in records %}
+                            <tr>
+                                <td>{{ record.patient.name }}</td>
+                                <td>{{ record.patient.age }}</td>
+                                <td>
+                                    {% if record.patient.gender == 'Male' %}
+                                        男
+                                    {% elif record.patient.gender == 'Female' %}
+                                        女
+                                    {% else %}
+                                        未知
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.processed_image %}
+                                        <img src="{{ record.processed_image.url }}" alt="医疗影像" style="max-width:100px;">
+                                    {% else %}
+                                        无影像
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.doctor %}
+                                        {{ record.doctor.name }}
+                                    {% else %}
+                                        未指定
+                                    {% endif %}
+                                </td>
+                                <td>{{ record.result }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="openModifyModal({{ record.id }})">
+                                        <i class="fas fa-edit"></i> 修改
+                                    </button>
+                                    <a href="{% url 'delete_record' record.id %}" class="btn btn-sm btn-danger" onclick="return confirm('确定删除吗？')">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">暂无记录</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if get_params %}&{{ get_params }}{% endif %}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link" aria-hidden="true">&laquo;</span></li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if get_params %}&{{ get_params }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if get_params %}&{{ get_params }}{% endif %}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link" aria-hidden="true">&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 模态框 -->
+    <div class="modal fade" id="modifyRecordModal" tabindex="-1" role="dialog" aria-labelledby="modifyRecordModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">修改记录</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modifyRecordForm">
+                        {% csrf_token %}
+                        <div id="modal-form-content"></div>  <!-- 这里加载 Django Form -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitModifyForm()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function openModifyModal(recordId) {
+        $.get(`/modify_record/${recordId}/`, function(data) {
+            $("#modal-form-content").html(data);
+            $("#modifyRecordModal").modal("show");
+        });
+    }
+
+    function submitModifyForm() {
+        $.post($("#modifyRecordForm").attr("action"), $("#modifyRecordForm").serialize(), function(data) {
+            if (data.success) {
+                alert("修改成功！");
+                location.reload();
+            } else {
+                alert("修改失败，请检查输入！");
+            }
+        });
+    }
+</script>
+{% endblock %}

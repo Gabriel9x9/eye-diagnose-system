@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800px" height="600px" viewBox="0 0 800 600" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>眼科诊断</title>
+    <g id="眼科诊断" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="背景" fill="#F8F9FA" cx="400" cy="300" r="300"></circle>
+        <g id="眼睛" transform="translate(250.000000, 200.000000)">
+            <circle id="眼白" fill="#FFFFFF" cx="150" cy="100" r="100"></circle>
+            <circle id="虹膜" fill="#4A90E2" cx="150" cy="100" r="60"></circle>
+            <circle id="瞳孔" fill="#000000" cx="150" cy="100" r="30"></circle>
+            <circle id="高光" fill="#FFFFFF" cx="130" cy="80" r="10"></circle>
+        </g>
+        <g id="医疗元素" transform="translate(400.000000, 300.000000)">
+            <path d="M-100,0 L100,0 M0,-100 L0,100" id="十字" stroke="#4A90E2" stroke-width="10" stroke-linecap="round"></path>
+            <circle id="外圈" fill="none" stroke="#4A90E2" stroke-width="5" cx="0" cy="0" r="150"></circle>
+        </g>
+        <g id="数据元素" transform="translate(400.000000, 300.000000)">
+            <path d="M-180,-180 L-120,-180 L-100,-160 L-80,-180 L-20,-180 L-20,-120 L-40,-100 L-20,-80 L-20,-20 L-80,-20 L-100,0 L-120,-20 L-180,-20 Z" id="数据块1" fill="#4A90E2" fill-opacity="0.2"></path>
+            <path d="M20,-180 L80,-180 L100,-160 L120,-180 L180,-180 L180,-120 L160,-100 L180,-80 L180,-20 L120,-20 L100,0 L80,-20 L20,-20 Z" id="数据块2" fill="#4A90E2" fill-opacity="0.2"></path>
+            <path d="M-180,20 L-120,20 L-100,40 L-80,20 L-20,20 L-20,80 L-40,100 L-20,120 L-20,180 L-80,180 L-100,160 L-120,180 L-180,180 Z" id="数据块3" fill="#4A90E2" fill-opacity="0.2"></path>
+            <path d="M20,20 L80,20 L100,40 L120,20 L180,20 L180,80 L160,100 L180,120 L180,180 L120,180 L100,160 L80,180 L20,180 Z" id="数据块4" fill="#4A90E2" fill-opacity="0.2"></path>
+        </g>
+    </g>
+</svg> 

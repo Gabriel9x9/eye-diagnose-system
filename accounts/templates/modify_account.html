@@ -1,0 +1,46 @@
+<form id="modifyAccountForm" method="post" action="{% url 'modify_account' account.id %}">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="name" class="form-label">医生姓名</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ account.name }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="username" class="form-label">用户名</label>
+        <input type="text" class="form-control" id="username" name="username" value="{{ account.username }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">权限</label>
+        <div class="d-flex">
+            <div class="form-check me-3">
+                <input class="form-check-input" type="radio" name="role" id="role-admin" value="admin" {% if account.role == "admin" %}checked{% endif %} {% if not request.user.is_staff and not request.user.role == 'admin' %}disabled{% endif %}>
+                <label class="form-check-label" for="role-admin">管理员</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" id="role-doctor" value="doctor" {% if account.role == "doctor" %}checked{% endif %} {% if not request.user.is_staff and not request.user.role == 'admin' %}disabled{% endif %}>
+                <label class="form-check-label" for="role-doctor">医生</label>
+            </div>
+        </div>
+    </div>
+    {% if request.user.is_staff or request.user.role == 'admin' %}
+    <div class="d-flex justify-content-end">
+        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">取消</button>
+        <button type="submit" class="btn btn-primary">保存</button>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        您没有修改账户的权限，请联系管理员。
+    </div>
+    {% endif %}
+</form>
+
+<style>
+.form-group {
+    margin-bottom: 15px;
+}
+.form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+</style>

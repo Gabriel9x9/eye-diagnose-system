@@ -1,0 +1,142 @@
+<form id="uploadForm" method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <div class="patient-info-form">
+        {% for field in form %}
+            <div class="form-group mb-3">
+                <label class="form-label fw-bold mb-2">{{ field.label }}</label>
+                <div class="input-wrapper">
+                    {{ field|safe }}
+                </div>
+                {% if field.errors %}
+                    <div class="form-error">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+                {% if field.help_text %}
+                    <div class="form-text text-muted mt-1">
+                        {{ field.help_text }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <div class="form-actions mt-4 text-center">
+            <button type="submit" class="btn btn-primary submit-btn">
+                <i class="fas fa-paper-plane me-2"></i>提交诊断
+            </button>
+            <button type="button" class="btn btn-outline-secondary ms-2" data-bs-dismiss="modal">
+                <i class="fas fa-times me-2"></i>取消
+            </button>
+        </div>
+    </div>
+</form>
+
+<style>
+    .patient-info-form {
+        padding: 1rem 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        color: var(--primary-color);
+        font-size: 1rem;
+    }
+    
+    .input-wrapper input, 
+    .input-wrapper select, 
+    .input-wrapper textarea {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .input-wrapper input:focus, 
+    .input-wrapper select:focus, 
+    .input-wrapper textarea:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+    }
+    
+    .form-error {
+        color: var(--danger-color);
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    .submit-btn {
+        padding: 0.8rem 2.5rem;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+    }
+
+    .form-actions {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* 确保文件上传字段正确显示 */
+    .input-wrapper input[type="file"] {
+        padding: 0.5rem;
+        background: transparent;
+    }
+    
+    /* 添加一些动画效果 */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .form-group {
+        animation: fadeIn 0.3s ease forwards;
+    }
+    
+    /* 不同表单元素的延迟 */
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.2s; }
+    .form-group:nth-child(3) { animation-delay: 0.3s; }
+    .form-group:nth-child(4) { animation-delay: 0.4s; }
+    .form-group:nth-child(5) { animation-delay: 0.5s; }
+    
+    .form-actions {
+        animation: fadeIn 0.5s 0.6s ease forwards;
+        opacity: 1 !important;
+    }
+</style>
+
+<script>
+// 添加页面加载完成后检查提交按钮
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('个人诊断表单已加载');
+    
+    // 确保提交按钮可见
+    const submitButton = document.querySelector('.submit-btn');
+    if (submitButton) {
+        console.log('提交按钮已找到，确保其可见');
+        submitButton.style.display = 'inline-block';
+        submitButton.style.visibility = 'visible';
+        submitButton.style.opacity = '1';
+    } else {
+        console.error('提交按钮未找到');
+    }
+});
+</script>

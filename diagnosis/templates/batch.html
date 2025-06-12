@@ -1,0 +1,697 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}批量诊断 - 眼科疾病智能诊断系统{% endblock %}
+
+{% block extra_css %}
+<style>
+    .diagnosis-container {
+        padding: 2rem 0;
+    }
+
+    .upload-btn-container {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .result-container {
+        display: flex;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .result-card {
+        flex: 1;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .result-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .result-card-header {
+        padding: 1rem;
+        background: var(--primary-color);
+        color: white;
+        font-weight: 600;
+    }
+
+    .result-card-body {
+        padding: 1.5rem;
+    }
+
+    .result-card-body img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+    }
+
+    .result-info {
+        margin-top: 1rem;
+    }
+
+    .result-info p {
+        margin-bottom: 0.5rem;
+    }
+
+    .result-info strong {
+        color: var(--primary-color);
+    }
+
+    .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: linear-gradient(to bottom, #f7f7f7, #efefef);
+        border-bottom: 1px solid #e5e5e5;
+        padding: 15px 20px;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+    }
+
+    .modal-title i {
+        color: #007aff;
+        margin-right: 8px;
+        font-size: 1.2rem;
+    }
+
+    .btn-close {
+        background: none;
+        opacity: 1;
+        font-size: 1.2rem;
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+    }
+
+    .btn-close:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-close:focus {
+        box-shadow: none;
+    }
+
+    .modal-body {
+        padding: 20px;
+        background-color: #ffffff;
+    }
+
+    .modal-footer {
+        background-color: #f7f7f7;
+        border-top: 1px solid #e5e5e5;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .patient-count {
+        font-size: 0.9rem;
+        color: #666;
+        background-color: #f0f0f0;
+        padding: 6px 12px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        margin-right: auto;
+    }
+
+    .patient-count i {
+        color: #007aff;
+        margin-right: 5px;
+    }
+
+    .patient-count .fw-bold {
+        color: #007aff;
+        margin-left: 3px;
+    }
+
+    .batch-list {
+        margin-top: 2rem;
+    }
+
+    .batch-item {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+    }
+
+    .batch-item:hover {
+        transform: translateX(5px);
+    }
+
+    .batch-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .batch-item-title {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .batch-item-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-completed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .batch-item-info {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    /* 上传区域样式 */
+    .batch-upload-form {
+        padding: 1rem 0;
+    }
+
+    .template-section {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .custom-file-upload {
+        position: relative;
+        width: 100%;
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        transition: all 0.3s;
+        background-color: #f8f9fa;
+        margin-bottom: 1.5rem;
+        cursor: pointer;
+    }
+
+    .custom-file-upload:hover {
+        border-color: var(--primary-color);
+        background-color: rgba(0, 113, 227, 0.05);
+    }
+
+    .custom-file-upload.dragover {
+        border-color: var(--primary-color);
+        background-color: rgba(0, 113, 227, 0.1);
+        transform: scale(1.01);
+    }
+
+    .custom-file-upload .upload-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .selected-file {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+    }
+
+    .preview-container {
+        margin-top: 1.5rem;
+    }
+
+    .preview-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .images-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+
+    .preview-item {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+        aspect-ratio: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container diagnosis-container">
+    <div class="upload-btn-container">
+        <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            <i class="fas fa-upload me-2"></i>上传批量诊断信息
+        </button>
+    </div>
+
+    <div class="result-container">
+        <!-- 左侧：批量处理进度 -->
+        <div class="result-card">
+            <div class="result-card-header">
+                <i class="fas fa-tasks me-2"></i>批量处理进度
+            </div>
+            <div class="result-card-body">
+                <div class="batch-list">
+                    {% for batch in batches %}
+                    <div class="batch-item">
+                        <div class="batch-item-header">
+                            <span class="batch-item-title">批次 #{{ batch.id }}</span>
+                            <span class="batch-item-status {% if batch.status == 'pending' %}status-pending{% else %}status-completed{% endif %}">
+                                {{ batch.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="batch-item-info">
+                            <p>上传时间：{{ batch.upload_time|date:"Y-m-d H:i" }}</p>
+                            <p>处理数量：{{ batch.processed_patients  }}/{{ batch.total_patients  }}</p>
+                            <p>处理医生：{% if batch.doctor %}{{ batch.doctor.name }}{% else %}系统自动处理{% endif %}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>暂无批量处理记录</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：诊断报告 -->
+        <div class="result-card">
+            <div class="result-card-header">
+                <i class="fas fa-file-medical-alt me-2"></i>诊断报告
+            </div>
+            <div class="result-card-body">
+                {% if latest_batch %}
+                    <div class="result-info">
+                        <p><strong>最新批次：</strong> #{{ latest_batch.id }}</p>
+                        <p><strong>处理状态：</strong> {{ latest_batch.status }}</p>
+                        <p><strong>上传时间：</strong> {{ latest_batch.upload_time }}</p>
+                        <p><strong>处理数量：</strong> {{ latest_batch.processed_patients  }}/{{ latest_batch.total_patients  }}</p>
+                        <p><strong>诊断医生：</strong> {{ record.doctor.name|default:"未分配" }}</p>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-file-medical-alt fa-3x mb-3"></i>
+                        <p>暂无诊断报告</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 上传信息的 Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>上传批量诊断信息
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="uploadFormContainer">
+                <!-- 直接内嵌批量上传表单，不再使用Ajax加载 -->
+                <div class="batch-upload-form">
+                    <div class="template-section">
+                        <h4>第一步：下载模板文件</h4>
+                        <a href="{{ template_url }}" class="btn btn-info" download>
+                            <i class="fas fa-download me-2"></i> 下载Excel模板
+                        </a>
+                        <p class="help-block">请按照模板格式填写患者信息</p>
+                    </div>
+
+                    <hr>
+
+                    <form id="batch-info-form" method="post" enctype="multipart/form-data" action="{% url 'batch_info' %}">
+                        {% csrf_token %}
+
+                        <div class="batch-upload-container">
+                            <h5 class="mb-3 fw-bold"><i class="fas fa-file-excel me-2"></i>上传患者信息表格</h5>
+
+                            <div class="custom-file-upload" id="excelDropZone">
+                                <i class="fas fa-file-excel upload-icon"></i>
+                                <h5>点击或拖放Excel文件到此处上传</h5>
+                                <p class="text-muted">支持格式: XLSX, XLS (包含患者姓名、年龄、性别信息)</p>
+                                <input type="file" class="d-none" id="patient_excel" name="excel_file" accept=".xlsx,.xls" required>
+                                <div id="selectedExcel" class="selected-file d-none">
+                                    <i class="fas fa-file-excel"></i>
+                                    <span id="excelFileName">未选择文件</span>
+                                </div>
+                            </div>
+
+                            <h5 class="mb-3 fw-bold"><i class="fas fa-images me-2"></i>上传医疗影像文件</h5>
+
+                            <div class="custom-file-upload" id="imagesDropZone">
+                                <i class="fas fa-images upload-icon"></i>
+                                <h5>点击或拖放影像文件到此处上传</h5>
+                                <p class="text-muted">支持格式: JPG, PNG (可上传多个文件，文件名应包含患者姓名)</p>
+                                <input type="file" id="image_files" name="folder_upload" webkitdirectory directory multiple>
+                                <div id="selectedImages" class="selected-file d-none">
+                                    <i class="fas fa-images"></i>
+                                    <span id="imagesCount">未选择文件</span>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-submit">
+                                    <i class="fas fa-upload me-2"></i>提交批量诊断
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="patient-count">
+                    <i class="fas fa-users me-1"></i>当前诊断数：<span id="patientCount" class="fw-bold">{{ last_patient.id }}</span>
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Batch page loaded');
+
+        // 获取CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        // Excel文件上传处理
+        const excelDropZone = document.getElementById('excelDropZone');
+        const excelInput = document.getElementById('patient_excel');
+        const selectedExcel = document.getElementById('selectedExcel');
+        const excelFileName = document.getElementById('excelFileName');
+
+        // 影像文件上传处理
+        const imagesDropZone = document.getElementById('imagesDropZone');
+        const imagesInput = document.getElementById('image_files');
+        const selectedImages = document.getElementById('selectedImages');
+        const imagesCount = document.getElementById('imagesCount');
+        const imagesPreviewContainer = document.getElementById('imagesPreviewContainer');
+        const imagesPreviewGrid = document.getElementById('imagesPreviewGrid');
+
+        // 直接绑定点击事件
+        if (excelDropZone) {
+            excelDropZone.onclick = function() {
+                console.log('Excel drop zone clicked');
+                excelInput.click();
+            };
+        }
+
+        if (imagesDropZone) {
+            imagesDropZone.onclick = function() {
+                console.log('Images drop zone clicked');
+                imagesInput.click();
+            };
+        }
+
+        // Excel文件变化处理
+        if (excelInput) {
+            excelInput.onchange = function() {
+                console.log('Excel input changed');
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    selectedExcel.classList.remove('d-none');
+                    excelFileName.textContent = file.name;
+                }
+            };
+        }
+
+        // 影像文件变化处理
+        if (imagesInput) {
+            imagesInput.onchange = function() {
+                console.log('Images input changed');
+                if (this.files.length > 0) {
+                    const files = this.files;
+                    selectedImages.classList.remove('d-none');
+                    imagesCount.textContent = files.length + ' 个文件已选择';
+
+                    // 显示图片预览
+                    showImagePreviews(files);
+                }
+            };
+        }
+
+        // 显示图片预览函数
+        function showImagePreviews(files) {
+            if (files.length > 0) {
+                imagesPreviewContainer.classList.remove('d-none');
+                imagesPreviewGrid.innerHTML = '';
+
+                // 最多显示8个预览
+                const maxPreviews = Math.min(8, files.length);
+
+                for (let i = 0; i < maxPreviews; i++) {
+                    const file = files[i];
+                    if (file.type.match('image.*')) {
+                        const reader = new FileReader();
+
+                        reader.onload = function(e) {
+                            const previewItem = document.createElement('div');
+                            previewItem.className = 'preview-item';
+
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'preview-image';
+                            img.alt = file.name;
+
+                            previewItem.appendChild(img);
+                            imagesPreviewGrid.appendChild(previewItem);
+                        }
+
+                        reader.readAsDataURL(file);
+                    }
+                }
+
+                // 显示更多信息
+                if (files.length > maxPreviews) {
+                    const moreItem = document.createElement('div');
+                    moreItem.className = 'preview-item more-item';
+                    moreItem.textContent = '+' + (files.length - maxPreviews);
+                    imagesPreviewGrid.appendChild(moreItem);
+                }
+            }
+        }
+
+        // 拖放功能
+        function setupDragAndDrop() {
+            // 添加拖放事件监听
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                if (excelDropZone) excelDropZone.addEventListener(eventName, preventDefaults, false);
+                if (imagesDropZone) imagesDropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // 拖放状态类
+            ['dragenter', 'dragover'].forEach(eventName => {
+                if (excelDropZone) {
+                    excelDropZone.addEventListener(eventName, function() {
+                        excelDropZone.classList.add('dragover');
+                    });
+                }
+                if (imagesDropZone) {
+                    imagesDropZone.addEventListener(eventName, function() {
+                        imagesDropZone.classList.add('dragover');
+                    });
+                }
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                if (excelDropZone) {
+                    excelDropZone.addEventListener(eventName, function() {
+                        excelDropZone.classList.remove('dragover');
+                    });
+                }
+                if (imagesDropZone) {
+                    imagesDropZone.addEventListener(eventName, function() {
+                        imagesDropZone.classList.remove('dragover');
+                    });
+                }
+            });
+
+            // 处理拖放的文件
+            if (excelDropZone) {
+                excelDropZone.addEventListener('drop', function(e) {
+                    console.log('Excel file dropped');
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+
+                    if (files.length) {
+                        excelInput.files = files;
+                        const file = files[0];
+                        selectedExcel.classList.remove('d-none');
+                        excelFileName.textContent = file.name;
+                    }
+                });
+            }
+
+            if (imagesDropZone) {
+                imagesDropZone.addEventListener('drop', function(e) {
+                    console.log('Image files dropped');
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+
+                    if (files.length) {
+                        imagesInput.files = files;
+                        selectedImages.classList.remove('d-none');
+                        imagesCount.textContent = files.length + ' 个文件已选择';
+
+                        // 显示图片预览
+                        showImagePreviews(files);
+                    }
+                });
+            }
+        }
+
+        // 设置拖放功能
+        setupDragAndDrop();
+
+        // 监听表单提交
+        const form = document.getElementById('batch-info-form');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();  // 阻止默认提交
+                console.log('Batch form submitted');
+
+                // 验证表单
+                if (!excelInput.files.length) {
+                    alert('请选择Excel文件');
+                    return false;
+                }
+
+                if (!imagesInput.files.length) {
+                    alert('请选择影像文件');
+                    return false;
+                }
+
+                const formData = new FormData(this);
+
+                // 添加加载动画
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 上传中...';
+                submitBtn.disabled = true;
+
+                // 以 AJAX 方式发送表单和文件
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Upload success', data);
+
+                    // 显示成功消息
+                    const successAlert = document.createElement('div');
+                    successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                    successAlert.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>批量诊断信息上传成功！
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    form.prepend(successAlert);
+
+                    // 恢复按钮
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+
+                    // 延迟关闭模态框并刷新页面
+                    setTimeout(function() {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+                        modal.hide();
+                        location.reload();
+                    }, 1500);
+                })
+                .catch(error => {
+                    console.error("批量上传失败：", error);
+
+                    // 显示错误消息
+                    const errorAlert = document.createElement('div');
+                    errorAlert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                    errorAlert.innerHTML = `
+                        <i class="fas fa-exclamation-circle me-2"></i>上传失败，请重试
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    form.prepend(errorAlert);
+
+                    // 恢复按钮
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

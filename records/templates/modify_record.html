@@ -1,0 +1,57 @@
+    <form id="modifyRecordForm" method="POST" action="{% url 'modify_record' record.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="patient_name">患者姓名：</label>
+            <input type="text" class="form-control" name="patient_name" value="{{ record.patient.name }}">
+        </div>
+
+        <div class="form-group">
+            <label for="doctor">诊断医生：</label>
+            <select class="form-control" name="doctor">
+                {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}" {% if doctor.id == record.doctor.id %}selected{% endif %}>
+                        {{ doctor.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="result">诊断结果：</label>
+            <select class="form-control" name="result">
+                <option value="正常" {% if record.result == "正常" %}selected{% endif %}>正常</option>
+                <option value="糖尿病" {% if record.result == "糖尿病" %}selected{% endif %}>糖尿病</option>
+                <option value="青光眼" {% if record.result == "青光眼" %}selected{% endif %}>青光眼</option>
+                <option value="白内障" {% if record.result == "白内障" %}selected{% endif %}>白内障</option>
+                <option value="AMD" {% if record.result == "AMD" %}selected{% endif %}>AMD</option>
+                <option value="高血压" {% if record.result == "高血压" %}selected{% endif %}>高血压</option>
+                <option value="近视" {% if record.result == "近视" %}selected{% endif %}>近视</option>
+                <option value="其他疾病/异常" {% if record.result == "其他疾病/异常" %}selected{% endif %}>其他疾病/异常</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="advice">诊断建议：</label>
+            <textarea class="form-control" name="advice" rows="3">{{ record.advice }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">保存</button>
+    </form>
+
+    <style>
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    textarea.form-control {
+        resize: vertical;
+    }
+    .btn-primary {
+        margin-top: 10px;
+    }
+    </style>

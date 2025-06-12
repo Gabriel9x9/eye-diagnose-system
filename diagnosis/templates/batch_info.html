@@ -1,0 +1,49 @@
+<!-- templates/batch_info.html -->
+<div class="batch-upload-form">
+    <div class="template-section">
+        <h4>第一步：下载模板文件</h4>
+        <a href="{% url 'download_template' %}" class="btn btn-info" download>
+            <i class="fas fa-download me-2"></i> 下载Excel模板
+        </a>
+        <p class="help-block">请按照模板格式填写患者信息</p>
+    </div>
+
+    <hr>
+
+    <form id="batchUploadForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <h4>第二步：上传填写好的Excel文件</h4>
+            <input type="file" name="excel_file" accept=".xlsx,.xls" required>
+            <p class="help-block">支持.xlsx和.xls格式</p>
+        </div>
+
+        <div class="form-group">
+            <label>上传文件夹（包含各患者诊断影像）：</label>
+            <input type="file" name="folder_upload" webkitdirectory directory multiple class="form-control">
+        </div>
+
+        <div class="progress" style="display: none;">
+            <div class="progress-bar" role="progressbar" style="width: 0%;"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+            <i class="glyphicon glyphicon-upload"></i> 开始批量上传
+        </button>
+    </form>
+</div>
+
+<style>
+    .batch-upload-form {
+        padding: 20px;
+    }
+    .help-block {
+        font-size: 12px;
+        color: #666;
+    }
+    .progress {
+        margin: 15px 0;
+        height: 25px;
+    }
+</style>

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}账户管理 - 眼科疾病智能诊断系统{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">医生账号管理</h2>
+
+    <!-- 查询表单 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="doctor_name" class="form-label">医生姓名</label>
+                    <input type="text" class="form-control" id="doctor_name" name="doctor_name" placeholder="请输入医生姓名" value="{{ request.GET.doctor_name }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="username" class="form-label">用户名</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名" value="{{ request.GET.username }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">权限</label>
+                    <div class="d-flex">
+                        <div class="form-check me-3">
+                            <input class="form-check-input" type="radio" name="role" id="role-admin" value="admin" {% if request.GET.role == "admin" %}checked{% endif %}>
+                            <label class="form-check-label" for="role-admin">管理员</label>
+                        </div>
+                        <div class="form-check me-3">
+                            <input class="form-check-input" type="radio" name="role" id="role-doctor" value="doctor" {% if request.GET.role == "doctor" %}checked{% endif %}>
+                            <label class="form-check-label" for="role-doctor">医生</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="role" id="role-all" value="" {% if not request.GET.role %}checked{% endif %}>
+                            <label class="form-check-label" for="role-all">全部</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i>查询
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 查询结果表格 -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>医生姓名</th>
+                            <th>用户名</th>
+                            <th>诊断人数</th>
+                            {% if request.user.is_staff or request.user.role == 'admin' %}
+                            <th width="200">操作</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in accounts %}
+                            <tr>
+                                <td>{{ account.doctor_name }}</td>
+                                <td>{{ account.username }}</td>
+                                <td>{{ account.diagnosis_count }}</td>
+                                {% if request.user.is_staff or request.user.role == 'admin' %}
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="openAccountModal({{ account.id }})">
+                                        <i class="fas fa-edit me-1"></i>修改
+                                    </button>
+                                    <a href="{% url 'delete_account' account.id %}" class="btn btn-sm btn-danger" onclick="return confirm('确定删除吗？')">
+                                        <i class="fas fa-trash me-1"></i>删除
+                                    </a>
+                                </td>
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-3">暂无记录</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分页 -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ params.urlencode }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link" aria-hidden="true">&laquo;</span></li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}&{{ params.urlencode }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ params.urlencode }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link" aria-hidden="true">&raquo;</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- 修改账户的Modal -->
+<div class="modal fade" id="accountModal" tabindex="-1" aria-labelledby="accountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="accountModalLabel">修改医生账号</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="accountFormContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function openAccountModal(accountId) {
+        $.get(`/modify_account/${accountId}/`, function(data) {
+            $("#accountFormContent").html(data);
+            const modal = new bootstrap.Modal(document.getElementById('accountModal'));
+            modal.show();
+
+            // 绑定表单提交
+            $("#modifyAccountForm").submit(function(e){
+                e.preventDefault();
+                $.post($(this).attr('action'), $(this).serialize(), function(res){
+                    if(res.success) {
+                        alert("修改成功！");
+                        location.reload();
+                    } else {
+                        alert("错误：" + (res.errors ? Object.values(res.errors).join(', ') : res.message));
+                    }
+                });
+            });
+        });
+    }
+</script>
+{% endblock %}
+
